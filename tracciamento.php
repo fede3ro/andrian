@@ -34,21 +34,24 @@ $d = mysql_fetch_array($delete);
 
 function getTecnico($id, $link) {
 	$tecnico = mysql_query("SELECT `cognome`, `nome` FROM `tecnico` WHERE `id` = '$id'", $link) or die ("Query non valida: " . mysql_error());
-	$fila = mysql_fetch_assoc($tecnico);
+	//$fila = mysql_fetch_assoc($tecnico);
+	$fila = mysql_fetch_array($tecnico);
 	return $fila;
 }
 
 function getProdotto($id, $link) {
-	$prodotto = mysql_query("SELECT `nome` FROM `prodotto` WHERE `id` = '$id'", $link) or die ("Query non valida: " . mysql_error());
-	$fila = mysql_fetch_assoc($prodotto);
+	$prodotto = mysql_query("SELECT `descrizione` FROM `prodotto` WHERE `id` = '$id'", $link) or die ("Query non valida: " . mysql_error());
+	//$fila = mysql_fetch_assoc($prodotto);
+	$fila = mysql_fetch_array($prodotto);
 	return $fila;
 }
 
-/*$ciao = getTecnico(3, $link);
-echo $ciao['nome'];*/
-
-/*$ciao = getProdotto(3, $link);
-echo $ciao['nome'];*/
+function getCodice($id, $link) {
+	$codice = mysql_query("SELECT `codice` FROM `prodotto` WHERE `id` = '$id'", $link) or die ("Query non valida: " . mysql_error());
+	//$fila = mysql_fetch_assoc($prodotto);
+	$fila = mysql_fetch_array($codice);
+	return $fila;
+}
 
 //mysql_close($link);
 
@@ -192,6 +195,9 @@ echo $ciao['nome'];*/
 									 Id
 								</th>
 								<th>
+									 Codice
+								</th>
+								<th>
 									 Prodotto
 								</th>
 								<th>
@@ -211,14 +217,13 @@ echo $ciao['nome'];*/
 								echo "<tr class=\"odd gradeX\">";
 								echo "<td><input type=\"checkbox\" class=\"checkboxes\" value=\"1\"/></td>";
    								echo "<td>$row[0]</td>";
+   								$campo0 = getCodice($row[1], $link);
+   								echo "<td>".$campo0[0]."</td>";
    								$campo1 = getProdotto($row[1], $link);
-   								echo "<td>".$campo1['nome']."</td>";
-   								//echo "<td>$row[1]</td>";
+   								echo "<td>".$campo1[0]."</td>";
    								$campo2 = getTecnico($row[2], $link);
-   								echo "<td>".$campo2['nome']."</td>";
-   								//echo "<td>$row[2]</td>";
+   								echo "<td>".$campo2[0]."</td>";
                                 echo "<td>".$row[3]."</td>";
-                                //echo "<td>$row[3]</td>";
                                 echo "<td>".$row[4]."</td>";
    								echo "</tr>";
 							}

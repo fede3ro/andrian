@@ -17,9 +17,21 @@ if (!$db_selected) {
     die ('Can\'t use foo : ' . mysql_error());
 }
 
-$prodotti = mysql_query("SELECT * FROM prodotto") or die("Query non valida: " . mysql_error());
+$prodotti = mysql_query("SELECT * FROM prodotto order by descrizione") or die("Query non valida: " . mysql_error());
 
-$tecnici = mysql_query("SELECT * FROM tecnico") or die("Query non valida: " . mysql_error());
+$tecnici = mysql_query("SELECT * FROM tecnico order by cognome") or die("Query non valida: " . mysql_error());
+
+function deleteTracciamento($idprodotto, $idtecnico, $quantita, $link) {
+	$tracciamento = mysql_query("INSERT INTO `tracciamento` (id_prodotto, id_tecnico, quantita) VALUES ('$idprodotto', '$idtecnico', '$quantita')", $link) or die ("Insert non valida: " . mysql_error());
+	//echo $tracciamento;
+}
+
+if(isset($_POST['prodotto']) && isset($_POST['tecnico']) && isset($_POST['numero'])) {
+	$tecnico = $_POST['tecnico'];
+	$prodotto = $_POST['prodotto'];
+	$numero = $_POST['numero'] * -1;
+	deleteTracciamento($prodotto, $tecnico, $numero, $link);
+}
 
 $numberp = mysql_query("SELECT count(*) FROM `prodotto`", $link) or die ("Query non valida: " . mysql_error());
 $numbert = mysql_query("SELECT count(*) FROM `tracciamento`", $link) or die ("Query non valida: " . mysql_error());
@@ -30,7 +42,6 @@ $p = mysql_fetch_array($numberp);
 $t = mysql_fetch_array($numbert);
 $i = mysql_fetch_array($insert);
 $d = mysql_fetch_array($delete);
-
 
 //mysql_close($link);
 ?> 
@@ -158,10 +169,10 @@ $d = mysql_fetch_array($delete);
 								</div>
 							</div>
 							<div class="portlet-body form">
-								<form role="form">
+								<form role="form" method="POST" action="uscita.php">
 									<div class="form-body">
 										<div class="form-group form-md-line-input form-md-floating-label has-info">
-											<select class="form-control" id="form_control_1">
+										<select name="tecnico" class="form-control" id="form_control_1">
 												<option value=""></option>
 												<?php
 												while ($row = mysql_fetch_row($tecnici)) {
@@ -172,20 +183,20 @@ $d = mysql_fetch_array($delete);
 											<label for="form_control_1">Seleziona tecnico</label>
 										</div>
 										<div class="form-group form-md-line-input form-md-floating-label has-info">
-											<select class="form-control" id="form_control_1">
+											<select name="prodotto" class="form-control" id="form_control_1">
 												<option value=""></option>
 												<?php
 												while ($row = mysql_fetch_row($prodotti)) {
-													echo "<option value=\"$row[0]\">$row[1]</option>";
+													echo "<option value=\"$row[0]\">$row[2]</option>";
 												}
 												?>
 											</select>
 											<label for="form_control_1">Seleziona prodotto</label>
 										</div>
 										<div class="form-group form-md-line-input form-md-floating-label has-info">
-											<input type="number" min="-100" max="-1" class="form-control" id="form_control_1">
+											<input name="numero" type="number" min="0" max="100" class="form-control" id="form_control_1">
 											<label for="form_control_1">Quantità</label>
-											<span class="help-block">Numero di prodotti...</span>
+											<span class="help-block">Numero di prodotti</span>
 										</div>
 									</div>
 									<div class="form-actions noborder">

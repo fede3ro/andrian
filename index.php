@@ -168,10 +168,13 @@ $d = mysql_fetch_array($delete);
 									<input type="checkbox" class="group-checkable" data-set="#sample_2 .checkboxes"/>
 								</th>
 								<th>
+									 ID
+								</th>
+								<th>
 									 Codice
 								</th>
 								<th>
-									 Prodotto
+									 Descrizione
 								</th>
 								<th>
 									 Quantità
@@ -189,8 +192,9 @@ $d = mysql_fetch_array($delete);
    								echo "<td>$row[0]</td>";
    								echo "<td>$row[1]</td>";
    								echo "<td>$row[2]</td>";
-                                if ($row[3] == 'funziona'){echo "<td><span class=\"label label-sm label-success\">$row[3]</span></td>";}
-                                else {echo "<td><span class=\"label label-sm label-danger\">$row[3]</span></td>";}
+   								echo "<td>$row[3]</td>";
+                                if ($row[4] == 'funzionante'){echo "<td><span class=\"label label-sm label-success\">$row[4]</span></td>";}
+                                else {echo "<td><span class=\"label label-sm label-danger\">$row[4]</span></td>";}
    								echo "</tr>";
 							}
 							?>
