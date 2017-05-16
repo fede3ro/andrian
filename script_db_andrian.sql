@@ -280,20 +280,12 @@ INSERT	INTO	prodotto	(id,	codice,	descrizione,	quantita,	stato)	VALUES	(	235	,	'
 
 
 
-#vecchio
-DELIMITER$$
-CREATE TRIGGER `tracciamento_verso_prodotto` AFTER INSERT ON `tracciamento` FOR EACH ROW BEGIN
-UPDATE prodotto SET quantita = quantita + (SELECT quantita FROM tracciamento WHERE id = (SELECT MAX(id) FROM tracciamento )
-AND id = (SELECT id FROM tracciamento WHERE id = (SELECT MAX(id) FROM tracciamento )) );
-END$$
-DELIMITER;
 
-
-#nuovo
 DELIMITER $$
-CREATE TRIGGER `tracciamento_verso_prodotto` AFTER INSERT ON `tracciamento` FOR EACH ROW BEGIN
-UPDATE prodotto SET quantita = quantita + (SELECT quantita FROM tracciamento WHERE id = (SELECT MAX(id) FROM tracciamento ))
-WHERE id = (SELECT id FROM tracciamento WHERE id = (SELECT MAX(id) FROM tracciamento ));
+CREATE TRIGGER `tracciamento_verso_prodotto` AFTER INSERT ON tracciamento FOR EACH ROW BEGIN
+UPDATE prodotto
+SET quantita = (quantita + (SELECT quantita FROM tracciamento WHERE id = (SELECT MAX(id) FROM tracciamento)))
+WHERE id = NEW.id_prodotto;
 END$$
 DELIMITER ;
 
