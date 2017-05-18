@@ -281,11 +281,16 @@ INSERT	INTO	prodotto	(id,	codice,	descrizione,	quantita,	stato)	VALUES	(	235	,	'
 
 
 
+
 DELIMITER $$
-CREATE TRIGGER `tracciamento_verso_prodotto` AFTER INSERT ON tracciamento FOR EACH ROW BEGIN
-UPDATE prodotto
-SET quantita = (quantita + (SELECT quantita FROM tracciamento WHERE id = (SELECT MAX(id) FROM tracciamento)))
-WHERE id = NEW.id_prodotto;
+DROP TRIGGER IF EXISTS tracciamento_verso_prodotto$$
+CREATE TRIGGER `tracciamento_verso_prodotto` AFTER INSERT ON tracciamento FOR EACH ROW
+BEGIN
+IF  ((Select quantita FROM prodotto where id=new.id_prodotto ) + (SELECT quantita  FROM tracciamento WHERE id = (SELECT MAX(id) FROM tracciamento )))>= 0 THEN
+  UPDATE prodotto  SET quantita = (quantita + (SELECT quantita FROM tracciamento WHERE id =(SELECT MAX(id) FROM tracciamento))) WHERE id = NEW.id_prodotto;
+ELSE 
+ signal sqlstate '45000' set message_text = 'My Error Message';
+END IF;
 END$$
 DELIMITER ;
 
