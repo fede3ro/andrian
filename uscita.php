@@ -4,6 +4,7 @@ $servername = "localhost";
 $username = "root";
 $password = "";
 $database = "DB_MAGAZZINO";
+if (!isset($error)){$error = null;}
 
 // Create connection
 $link = mysql_connect($servername, $username, $password);
@@ -21,21 +22,50 @@ $prodotti = mysql_query("SELECT * FROM prodotto order by descrizione") or die("Q
 
 $tecnici = mysql_query("SELECT * FROM tecnico order by cognome") or die("Query non valida: " . mysql_error());
 
-function deleteTracciamento($idprodotto, $idtecnico, $quantita, $link) {
-	$tracciamento = mysql_query("INSERT INTO `tracciamento` (id_prodotto, id_tecnico, quantita) VALUES ('$idprodotto', '$idtecnico', '$quantita')", $link) or die ("Insert non valida: " . mysql_error());
-	//echo $tracciamento;
+
+/*function error() {
+	echo "<div class=\"alert alert-danger display-hide\" style=\"display: block;\">";
+	echo "<button class=\"close\" data-close=\"alert\"></button>";
+	echo "You have some form errors. Please check below.";
+	echo "</div>";
 }
+function success() {
+	echo "<div class=\"alert alert-success display-hide\" style=\"display: block;\">";
+	echo "<button class=\"close\" data-close=\"alert\"></button>";
+	echo "Your form validation is successful!";
+	echo "</div>";
+}*/
 
 if(isset($_POST['prodotto']) && isset($_POST['tecnico']) && isset($_POST['numero'])) {
 	$tecnico = $_POST['tecnico'];
 	$prodotto = $_POST['prodotto'];
-	$numero = $_POST['numero'] * -1;
-	deleteTracciamento($prodotto, $tecnico, $numero, $link);
+	$numero = $_POST['numero'] * - 1;
+	
+	$n = mysql_query("SELECT quantita FROM `prodotto` where id = '$prodotto'", $link) or die ("Query non valida: " . mysql_error());
+	$n = mysql_fetch_array($n);
+	$tracciamento = mysql_query("INSERT INTO `tracciamento` (id_prodotto, id_tecnico, quantita) VALUES ('$prodotto', '$tecnico', '$numero')", $link);
+	//or die ("Insert non valida: " . mysql_error());
+
+	if (!$tracciamento) {
+		$error = "<div class=\"alert alert-danger display-hide\" style=\"display: block;\">";
+		$error = $error . "<button class=\"close\" data-close=\"alert\"></button>";
+		$error = $error . "Si è verificato un errore. Rimangono soltanto ".$n[0]." pezzi.";
+		$error = $error . "</div>";
+	}
+	else {
+		$error = "<div class=\"alert alert-success display-hide\" style=\"display: block;\">";
+		$error = $error . "<button class=\"close\" data-close=\"alert\"></button>";
+		$error = $error . "Ritiro prodotti avvenuto con successo!";
+		$error = $error . "</div>";
+		unset($_POST['tecnico']);
+		unset($_POST['prodotto']);
+		unset($_POST['numero']);
+	}
 }
 
 $numberp = mysql_query("SELECT count(*) FROM `prodotto`", $link) or die ("Query non valida: " . mysql_error());
 $numbert = mysql_query("SELECT count(*) FROM `tracciamento`", $link) or die ("Query non valida: " . mysql_error());
-$insert = mysql_query("SELECT count(*) FROM `tracciamento` where quantita > 0", $link) or die ("Query non valida: " . mysql_error());
+$insert = mysql_query("SELECT count(*) FROM `tracciamento` where quantita >= 0", $link) or die ("Query non valida: " . mysql_error());
 $delete = mysql_query("SELECT count(*) FROM `tracciamento` where quantita < 0", $link) or die ("Query non valida: " . mysql_error());
 
 $p = mysql_fetch_array($numberp);
@@ -156,6 +186,11 @@ $d = mysql_fetch_array($delete);
 					<h1><small></small></h1>
 				</div>
 				<!-- END PAGE TITLE -->
+				<?php
+
+					echo $error;
+
+				?>
 			</div>
 			<!-- BEGIN PAGE CONTENT-->
 			<div class="row">
@@ -176,7 +211,12 @@ $d = mysql_fetch_array($delete);
 												<option value=""></option>
 												<?php
 												while ($row = mysql_fetch_row($tecnici)) {
-													echo "<option value=\"$row[0]\">$row[1]</option>";
+													if(isset($_POST['tecnico']) && ($tecnico == $row[0])){
+														echo "<option selected value=\"$row[0]\">$row[1]</option>";
+													}
+													else {
+														echo "<option value=\"$row[0]\">$row[1]</option>";
+													}
 												}
 												?>
 											</select>
@@ -187,14 +227,21 @@ $d = mysql_fetch_array($delete);
 												<option value=""></option>
 												<?php
 												while ($row = mysql_fetch_row($prodotti)) {
-													echo "<option value=\"$row[0]\">$row[2]</option>";
+													$oldprodotto = mysql_query("SELECT descrizione FROM `prodotto` where id = '$prodotto'", $link);
+													$oldprodotto = mysql_fetch_array($oldprodotto);
+													if(isset($_POST['prodotto']) && ($prodotto == $row[0])){
+														echo "<option selected value=\"$row[0]\">$row[2]</option>";
+													}
+													else {
+														echo "<option value=\"$row[0]\">$row[2]</option>";
+													}
 												}
 												?>
 											</select>
 											<label for="form_control_1">Seleziona prodotto</label>
 										</div>
 										<div class="form-group form-md-line-input form-md-floating-label has-info">
-											<input name="numero" type="number" min="0" max="100" class="form-control" id="form_control_1">
+											<input name="numero" type="number" min="0" max="100" value="<?php if(isset($_POST['numero'])){echo $_POST['numero'];} ?>" class="form-control" id="form_control_1">
 											<label for="form_control_1">Quantità</label>
 											<span class="help-block">Numero di prodotti</span>
 										</div>
