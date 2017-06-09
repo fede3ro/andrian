@@ -17,18 +17,7 @@ if (!$db_selected) {
     die ('Can\'t use foo : ' . mysql_error());
 }
 
-$result = mysql_query("SELECT * FROM prodotto") or die("Query non valida: " . mysql_error());
-
-
-$numberp = mysql_query("SELECT count(*) FROM `prodotto`", $link) or die ("Query non valida: " . mysql_error());
-$numbert = mysql_query("SELECT count(*) FROM `tracciamento`", $link) or die ("Query non valida: " . mysql_error());
-$insert = mysql_query("SELECT count(*) FROM `tracciamento` where quantita > 0", $link) or die ("Query non valida: " . mysql_error());
-$delete = mysql_query("SELECT count(*) FROM `tracciamento` where quantita < 0", $link) or die ("Query non valida: " . mysql_error());
-
-$p = mysql_fetch_array($numberp);
-$t = mysql_fetch_array($numbert);
-$i = mysql_fetch_array($insert);
-$d = mysql_fetch_array($delete);
+$result = mysql_query("SELECT id , id_prodotto , id_tecnico , SUM(quantita) from tracciamento WHERE timestamp > sysdate()-30 and stato='y' GROUP BY id_tecnico, id_prodotto ORDER BY `tracciamento`.`id_prodotto` ASC") or die("Query non valida: " . mysql_error());
 
 //mysql_close($link);
 ?> 
@@ -71,69 +60,6 @@ $d = mysql_fetch_array($delete);
 <!-- BEGIN CONTAINER -->
 <div class="page-container">
 
-	<div class="row">
-					<div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-						<a class="dashboard-stat dashboard-stat-light blue-soft" href="index.php">
-						<div class="visual">
-							<i class="fa fa-comments"></i>
-						</div>
-						<div class="details">
-							<div class="number">
-								 <?php echo $p[0]; ?>
-							</div>
-							<div class="desc">
-								 Magazzino
-							</div>
-						</div>
-						</a>
-					</div>
-					<div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-						<a class="dashboard-stat dashboard-stat-light red-soft" href="inserimento.php">
-						<div class="visual">
-							<i class="fa fa-trophy"></i>
-						</div>
-						<div class="details">
-							<div class="number">
-								 <?php echo $i[0]; ?>
-							</div>
-							<div class="desc">
-								 Deposito
-							</div>
-						</div>
-						</a>
-					</div>
-					<div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-						<a class="dashboard-stat dashboard-stat-light green-soft" href="uscita.php">
-						<div class="visual">
-							<i class="fa fa-shopping-cart"></i>
-						</div>
-						<div class="details">
-							<div class="number">
-								 <?php echo $d[0]; ?>
-							</div>
-							<div class="desc">
-								 Ritiro
-							</div>
-						</div>
-						</a>
-					</div>
-					<div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-						<a class="dashboard-stat dashboard-stat-light purple-soft" href="tracciamento.php">
-						<div class="visual">
-							<i class="fa fa-globe"></i>
-						</div>
-						<div class="details">
-							<div class="number">
-								 <?php echo $t[0]; ?>
-							</div>
-							<div class="desc">
-								 Tracciamento
-							</div>
-						</div>
-						</a>
-					</div>
-	</div>
-
 		<div class="page-content">
 			<!-- BEGIN PAGE HEADER-->
 			<!-- BEGIN PAGE HEAD -->
@@ -141,7 +67,6 @@ $d = mysql_fetch_array($delete);
 				<!-- BEGIN PAGE TITLE -->
 				<div class="page-title">
 					<h1><small></small></h1>
-					<button type="button" class="btn btn-info" href="view.php">Tracciamento ultimi 30 giorni</button>
 				</div>
 				<!-- END PAGE TITLE -->
 			</div>
